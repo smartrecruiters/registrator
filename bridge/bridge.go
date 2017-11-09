@@ -180,7 +180,7 @@ func (b *Bridge) Sync(quiet bool) {
 	}
 }
 
-func (b *Bridge) marathonLabelsMatchesFilter(container *dockerapi.Container) bool {
+func (b *Bridge) matchMarathonLabelToFilter(container *dockerapi.Container) bool {
 	if b.config.LabelFilterRegexp != "" {
 		for _, e := range container.Config.Env {
 			if !strings.HasPrefix(e, "MARATHON_APP_LABEL_") {
@@ -216,7 +216,7 @@ func (b *Bridge) add(containerId string, quiet bool) {
 		return
 	}
 
-	if !b.marathonLabelsMatchesFilter(container) {
+	if !b.matchMarathonLabelToFilter(container) {
 		log.Printf("Marathon Labels [%s] do not match for filter [%s]", container.Config.Env, b.config.LabelFilterRegexp)
 		return
 	}
