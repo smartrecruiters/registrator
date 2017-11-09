@@ -198,11 +198,27 @@ func (b *Bridge) add(containerId string, quiet bool) {
 		return
 	}
 
+	if b.config.LabelFilterRegexp != "" {
+		labels := container.Config.Labels
+
+		match := false
+		for k, v := range labels {
+			match, _ = regexp.MatchString(b.config.LabelFilterRegexp, k+":"+v)
+			if match {
+				break
+			}
+		}
+		if !match {
+			log.Printf("Labels [%s] do not match for filter [%s]", labels, b.config.LabelFilterRegexp)
+			return
+		}
+	}
+
 	ports := make(map[string]ServicePort)
 
 	// Extract configured host port mappings, relevant when using --net=host
 	for port, _ := range container.Config.ExposedPorts {
-		published := []dockerapi.PortBinding{ {"0.0.0.0", port.Port()}, }
+		published := []dockerapi.PortBinding{{"0.0.0.0", port.Port()}}
 		ports[string(port)] = servicePort(container, port, published)
 	}
 
