@@ -30,6 +30,7 @@ var deregister = flag.String("deregister", "always", "Deregister exited services
 var retryAttempts = flag.Int("retry-attempts", 0, "Max retry attempts to establish a connection with the backend. Use -1 for infinite retries")
 var retryInterval = flag.Int("retry-interval", 2000, "Interval (in millisecond) between retry-attempts.")
 var cleanup = flag.Bool("cleanup", false, "Remove dangling services")
+var nameFilterRegexp = flag.String("name-filter-regexp", "", "filter containers by name regex")
 
 func getopt(name, def string) string {
 	if env := os.Getenv(name); env != "" {
@@ -98,15 +99,16 @@ func main() {
 	}
 
 	b, err := bridge.New(docker, flag.Arg(0), bridge.Config{
-		HostIp:          *hostIp,
-		Internal:        *internal,
-		Explicit:        *explicit,
-		UseIpFromLabel:  *useIpFromLabel,
-		ForceTags:       *forceTags,
-		RefreshTtl:      *refreshTtl,
-		RefreshInterval: *refreshInterval,
-		DeregisterCheck: *deregister,
-		Cleanup:         *cleanup,
+		HostIp:           *hostIp,
+		Internal:         *internal,
+		Explicit:         *explicit,
+		UseIpFromLabel:   *useIpFromLabel,
+		ForceTags:        *forceTags,
+		RefreshTtl:       *refreshTtl,
+		RefreshInterval:  *refreshInterval,
+		DeregisterCheck:  *deregister,
+		Cleanup:          *cleanup,
+		NameFilterRegexp: *nameFilterRegexp,
 	})
 
 	assert(err)
