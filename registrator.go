@@ -31,6 +31,7 @@ var retryAttempts = flag.Int("retry-attempts", 0, "Max retry attempts to establi
 var retryInterval = flag.Int("retry-interval", 2000, "Interval (in millisecond) between retry-attempts.")
 var cleanup = flag.Bool("cleanup", false, "Remove dangling services")
 var nameFilterRegexp = flag.String("name-filter-regexp", "", "filter containers by name regex")
+var marathonLabelFilterRegexp = flag.String("marathon-label-filter-regexp", "", "filter containers by marathon label regex")
 
 func getopt(name, def string) string {
 	if env := os.Getenv(name); env != "" {
@@ -99,16 +100,17 @@ func main() {
 	}
 
 	b, err := bridge.New(docker, flag.Arg(0), bridge.Config{
-		HostIp:           *hostIp,
-		Internal:         *internal,
-		Explicit:         *explicit,
-		UseIpFromLabel:   *useIpFromLabel,
-		ForceTags:        *forceTags,
-		RefreshTtl:       *refreshTtl,
-		RefreshInterval:  *refreshInterval,
-		DeregisterCheck:  *deregister,
-		Cleanup:          *cleanup,
-		NameFilterRegexp: *nameFilterRegexp,
+		HostIp:                    *hostIp,
+		Internal:                  *internal,
+		Explicit:                  *explicit,
+		UseIpFromLabel:            *useIpFromLabel,
+		ForceTags:                 *forceTags,
+		RefreshTtl:                *refreshTtl,
+		RefreshInterval:           *refreshInterval,
+		DeregisterCheck:           *deregister,
+		Cleanup:                   *cleanup,
+		NameFilterRegexp:          *nameFilterRegexp,
+		MarathonLabelFilterRegexp: *marathonLabelFilterRegexp,
 	})
 
 	assert(err)
