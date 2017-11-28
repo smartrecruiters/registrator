@@ -180,6 +180,25 @@ func (b *Bridge) Sync(quiet bool) {
 	}
 }
 
+func (b *Bridge) matchMarathonLabelToFilter(container *dockerapi.Container) bool {
+	if b.config.MarathonLabelFilterRegexp != "" {
+		for _, e := range container.Config.Env {
+			if !strings.HasPrefix(e, "MARATHON_APP_LABEL_") {
+				continue
+			}
+			marathonLabel := strings.TrimPrefix(e, "MARATHON_APP_LABEL_")
+			marathonLabel = strings.Replace(marathonLabel, "=", ":", -1)
+			marathonLabel = strings.ToLower(marathonLabel)
+			match, _ := regexp.MatchString(b.config.MarathonLabelFilterRegexp, marathonLabel)
+			if match {
+				return true
+			}
+		}
+		return false
+	}
+	return true // empty regex means everything is matching
+}
+
 func (b *Bridge) add(containerId string, quiet bool) {
 	if d := b.deadContainers[containerId]; d != nil {
 		b.services[containerId] = d.Services
@@ -206,20 +225,9 @@ func (b *Bridge) add(containerId string, quiet bool) {
 		}
 	}
 
-	if b.config.MarathonLabelFilterRegexp != "" {
-		for _, e := range container.Config.Env {
-			if !strings.HasPrefix(e, "MARATHON_APP_LABEL_") {
-				continue
-			}
-			marathonLabel := strings.TrimPrefix(e, "MARATHON_APP_LABEL_")
-			marathonLabel = strings.Replace(marathonLabel, "=", ":", -1)
-			marathonLabel = strings.ToLower(marathonLabel)
-			match, _ := regexp.MatchString(b.config.MarathonLabelFilterRegexp, marathonLabel)
-			if !match {
-				log.Printf("Marathon Labels [%s] do not match for filter [%s]", container.Config.Env, b.config.MarathonLabelFilterRegexp)
-				return
-			}
-		}
+	if !b.matchMarathonLabelToFilter(container) {
+		log.Printf("Marathon Labels [%s] do not match for filter [%s]", container.Config.Env, b.config.MarathonLabelFilterRegexp)
+		return
 	}
 
 	ports := make(map[string]ServicePort)
