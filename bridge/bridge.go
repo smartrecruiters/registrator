@@ -180,11 +180,6 @@ func (b *Bridge) Sync(quiet bool) {
 	}
 }
 
-func (b *Bridge) matchMarathonLabelToFilter(container *dockerapi.Container) bool {
-
-	return false
-}
-
 func (b *Bridge) add(containerId string, quiet bool) {
 	if d := b.deadContainers[containerId]; d != nil {
 		b.services[containerId] = d.Services
