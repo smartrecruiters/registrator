@@ -194,6 +194,7 @@ func (b *Bridge) matchMarathonLabelToFilter(container *dockerapi.Container) bool
 				return true
 			}
 		}
+		log.Printf("Marathon Labels [%s] do not match for filter [%s]", container.Config.Env, b.config.MarathonLabelFilterRegexp)
 		return false
 	}
 	return true // empty regex means everything is matching
@@ -226,7 +227,6 @@ func (b *Bridge) add(containerId string, quiet bool) {
 	}
 
 	if !b.matchMarathonLabelToFilter(container) {
-		log.Printf("Marathon Labels [%s] do not match for filter [%s]", container.Config.Env, b.config.MarathonLabelFilterRegexp)
 		return
 	}
 
