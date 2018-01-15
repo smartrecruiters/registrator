@@ -178,6 +178,8 @@ func main() {
 		switch msg.Status {
 		case "start":
 			go b.Add(msg.ID)
+		case "kill":
+			go b.Remove(msg.ID)
 		case "die":
 			go b.RemoveOnExit(msg.ID)
 		}
