@@ -259,8 +259,22 @@ func (b *Bridge) add(containerId string, quiet bool) {
 		servicePorts[key] = port
 	}
 
+	portApp := ""
+	for _, e := range container.Config.Env {
+		if !strings.HasPrefix(e, "PORT_APP=") {
+			continue
+		}
+		portApp = strings.TrimPrefix(e, "PORT_APP=")
+	}
+
 	isGroup := len(servicePorts) > 1
 	for _, port := range servicePorts {
+		if len(portApp) > 0 && port.ExposedPort != portApp {
+			if !quiet {
+				log.Println("ignored(not port_app):", container.ID[:12], "service on port", port.ExposedPort)
+			}
+			continue
+		}
 		service := b.newService(port, isGroup)
 		if service == nil {
 			if !quiet {
