@@ -269,7 +269,6 @@ func (b *Bridge) add(containerId string, quiet bool) {
 
 	isGroup := len(servicePorts) > 1
 	for _, port := range servicePorts {
-		log.Println("ports:", port.ExposedPort, port.HostPort, portApp)
 		if len(portApp) > 0 && port.HostPort != portApp {
 			if !quiet {
 				log.Println("ignored(not port_app):", container.ID[:12], "service on port", port.ExposedPort)
